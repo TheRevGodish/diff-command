@@ -18,7 +18,7 @@ struct MFile{
   /*! the content of the file */
   const char *data;
   /*! the size of the file data */
-  int flen; 
+  int flen;
 };
 
 /*! \brief open the file and if everything work, it returns the structure
