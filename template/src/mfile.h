@@ -1,7 +1,7 @@
 #ifndef MFILE_H
 #define MFILE_H
 
-/*! \file mfile.h
+/*! \file readfile.h
  * \brief loading a file as a char *
  *
  * The module load efficiently a file in memory using mmap. If loadFile
