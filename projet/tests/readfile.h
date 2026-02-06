@@ -23,15 +23,14 @@ struct dfile{
 
 struct dfile_lines{
     // TODO: à modifier en nouvelle 'struct line'
-    char **lines;
+    struct line **lines;
     int line_count;
     // est-ce qu'on propage le nom du fichier avec : char *file;
 };
 
 // TODO: continuer en prenant en compte cette nouvelle struct
 struct line{
-    char *data;
-    int hash;
+    unsigned long hash;
     int id_line;
     // est-ce qu'on propage le nom du fichier avec : char *file;
 };
