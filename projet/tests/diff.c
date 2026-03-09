@@ -73,6 +73,27 @@ unsigned naive_dist(const int* u, const int* v, unsigned **dist_mat) {
     return dist_mat[len_u][len_v];
 }
 
+void print_dist_mat(const int* u, const int* v, unsigned **dist_mat) {
+    unsigned len_u = 0, len_v = 0;
+    while (u[len_u] != 0) len_u++;
+    while (v[len_v] != 0) len_v++;
+
+    // En-tête
+    printf("     \"\"");
+    for (unsigned j = 0; j < len_v; j++)
+        printf("  %2c", v[j]);
+    printf("\n");
+
+    // Lignes
+    for (unsigned i = 0; i <= len_u; i++) {
+        if (i == 0) printf("  \"\"");
+        else        printf("   %c", u[i-1]);
+        for (unsigned j = 0; j <= len_v; j++)
+            printf("  %2u", dist_mat[i][j]);
+        printf("\n");
+    }
+}
+
 char* script(unsigned **dist_mat, unsigned lu, unsigned lv){
 	// distance entre les deux mots
 	int dist = dist_mat[lu][lv];
