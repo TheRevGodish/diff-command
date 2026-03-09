@@ -41,6 +41,15 @@ static unsigned min(unsigned a, unsigned b) {
     return (a < b) ? a : b;
 }
 
+void reverte(char *str) {
+    int n = strlen(str);
+    for (int i = 0; i < n / 2; i++) {
+        char tmp = str[i];
+        str[i] = str[n - 1 - i];
+        str[n - 1 - i] = tmp;
+    }
+}
+
 unsigned naive_dist(const int* u, const int* v, unsigned **dist_mat) {
     unsigned len_u = 0;
     unsigned len_v = 0;
