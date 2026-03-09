@@ -95,17 +95,35 @@ void print_dist_mat(const int* u, const int* v, unsigned **dist_mat) {
 }
 
 char* script(unsigned **dist_mat, unsigned lu, unsigned lv){
+    char * script = malloc((lu + lv + 1) * sizeof(char));
 	// distance entre les deux mots
 	int dist = dist_mat[lu][lv];
 	int current = dist;
-	// on balaye la valeur au dessus, à gauche, et en diagonale gauche de current
+    int i = lu;
+    int j = lv;
+    int pos = 0;
+
 	while (current != 0) {
-		// i = lu     j = lv
-		int top = dist_mat[i][j-1];
-		int left = dist_mat[i-1][j];
-		int diag = dist_mat[i-1][j-1];
-		// on veut celui qui vaut current - 1 et se déplace dessus en modifiant i et j à la baisse
+		int top = dist_mat[i-1][j];
+	    int left = dist_mat[i][j-1];
+	    int diag = dist_mat[i-1][j-1];
+	    if (top < current) {
+	        script[pos++] = 'd';
+	        current = top;
+	        i--;
+	    }
+		else if (left < current) {
+		    script[pos++] = 'i';
+		    current = left;
+		    j--;
+		} else {
+		    script[pos++] = 'm';
+		    current = diag;
+		    i--;
+		    j--;
+		}
 	}
+    return script;
 }
 
 int counting_lines(struct dfile *dfile){
@@ -202,6 +220,7 @@ int main(int argc, char **argv) {
 		printf("\n");
     }
 
+    //test
     int u[] = {'p','o','m','m','e', 0};
 	int v[] = {'p','a','l','m','i','e','r', 0};
 
@@ -211,6 +230,8 @@ int main(int argc, char **argv) {
 
 	naive_dist(u, v, dist_mat);
 	print_dist_mat(u, v, dist_mat);
+    script(dist_mat, u, v);
+    //
 
     release_file(dfile1);
     release_file(dfile2);
