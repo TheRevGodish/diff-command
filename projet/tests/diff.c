@@ -95,34 +95,40 @@ void print_dist_mat(const int* u, const int* v, unsigned **dist_mat) {
 }
 
 char* script(unsigned **dist_mat, unsigned lu, unsigned lv){
-    char * script = malloc((lu + lv + 1) * sizeof(char));
-	// distance entre les deux mots
-	int dist = dist_mat[lu][lv];
-	int current = dist;
+    char *script = malloc((lu + lv + 1) * sizeof(char));
     int i = lu;
     int j = lv;
     int pos = 0;
 
-	while (current != 0) {
-		int top = dist_mat[i-1][j];
-	    int left = dist_mat[i][j-1];
-	    int diag = dist_mat[i-1][j-1];
-	    if (top < current) {
-	        script[pos++] = 'd';
-	        current = top;
-	        i--;
-	    }
-		else if (left < current) {
-		    script[pos++] = 'i';
-		    current = left;
-		    j--;
-		} else {
-		    script[pos++] = 'm';
-		    current = diag;
-		    i--;
-		    j--;
-		}
-	}
+    while (i > 0 || j > 0) {
+        if (i == 0) {
+            // plus que des insertions
+            script[pos++] = 'i';
+            j--;
+        } else if (j == 0) {
+            // plus que des suppressions
+            script[pos++] = 'd';
+            i--;
+        } else {
+            int top  = dist_mat[i-1][j];
+            int left = dist_mat[i][j-1];
+            int diag = dist_mat[i-1][j-1];
+            int cur  = dist_mat[i][j];
+
+            if (top < cur) {
+                script[pos++] = 'd';
+                i--;
+            } else if (left < cur) {
+                script[pos++] = 'i';
+                j--;
+            } else {
+                script[pos++] = 'm';
+                i--;
+                j--;
+            }
+        }
+    }
+    script[pos] = '\0';
     return script;
 }
 
@@ -221,16 +227,18 @@ int main(int argc, char **argv) {
     }
 
     //test
-    int u[] = {'p','o','m','m','e', 0};
-	int v[] = {'p','a','l','m','i','e','r', 0};
+    int u[] = {'a','b','r','a','c','a','d','a','b','r','a', 0};
+	int v[] = {'b','a','r','b','a','p','a','p','a', 0};
 
-	unsigned **dist_mat = malloc(6 * sizeof(unsigned *));
-	for (unsigned i = 0; i < 6; i++)
-    dist_mat[i] = malloc(8 * sizeof(unsigned));
+	unsigned **dist_mat = malloc(13 * sizeof(unsigned *));
+	for (unsigned i = 0; i < 13; i++)
+    dist_mat[i] = malloc(13 * sizeof(unsigned));
 
 	naive_dist(u, v, dist_mat);
 	print_dist_mat(u, v, dist_mat);
-    script(dist_mat, u, v);
+    char *s = script(dist_mat, sizeof(u)/sizeof(int) - 1, sizeof(v)/sizeof(int) - 1);
+	reverte(s);
+	printf("%s\n", s);
     //
 
     release_file(dfile1);
