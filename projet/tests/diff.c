@@ -202,6 +202,12 @@ int main(int argc, char **argv) {
 		printf("\n");
     }
 
+    char * mot1 = "pomme";
+    char * mot2 = "palmier";
+    char ** dist_mat;
+    naive_dist(&mot1, &mot2, &dist_mat);
+    print_dist_mat(&mot1, &mot2, &dist_mat);
+
     release_file(dfile1);
     release_file(dfile2);
 }
