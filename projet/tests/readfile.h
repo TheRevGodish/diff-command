@@ -22,20 +22,16 @@ struct dfile{
 };
 
 struct dfile_lines{
-    // TODO: à modifier en nouvelle 'struct line'
     struct line **lines;
     int line_count;
-    // est-ce qu'on propage le nom du fichier avec : char *file;
 };
 
-// TODO: continuer en prenant en compte cette nouvelle struct
 struct line{
     unsigned long hash;
     int id_line;
-	//ajouter pour collision
+	// ajouté pour collision
 	const char *content;
     int len;
-    // est-ce qu'on propage le nom du fichier avec : char *file;
 };
 
 /*! \brief open the file and if everything work, it returns the structure
