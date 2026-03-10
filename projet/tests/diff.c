@@ -50,7 +50,8 @@ void reverte(char *str) {
     }
 }
 
-unsigned naive_dist(const int* u, const int* v, unsigned **dist_mat) {
+//passer en unsigned
+unsigned naive_dist(const unsigned long* u, const unsigned long* v, unsigned **dist_mat) {
     unsigned len_u = 0;
     unsigned len_v = 0;
     while (u[len_u] != 0) len_u++;
@@ -73,7 +74,7 @@ unsigned naive_dist(const int* u, const int* v, unsigned **dist_mat) {
     return dist_mat[len_u][len_v];
 }
 
-void print_dist_mat(const int* u, const int* v, unsigned **dist_mat) {
+/*void print_dist_mat(const int* u, const int* v, unsigned **dist_mat) {
     unsigned len_u = 0, len_v = 0;
     while (u[len_u] != 0) len_u++;
     while (v[len_v] != 0) len_v++;
@@ -90,6 +91,25 @@ void print_dist_mat(const int* u, const int* v, unsigned **dist_mat) {
         else        printf("   %c", u[i-1]);
         for (unsigned j = 0; j <= len_v; j++)
             printf("  %2u", dist_mat[i][j]);
+        printf("\n");
+    }
+}*/
+
+//changer pour unsigned
+void print_dist_mat_lines(struct dfile_lines *f1, struct dfile_lines *f2, unsigned **dist_mat) {
+    unsigned lu = f1->line_count;
+    unsigned lv = f2->line_count;
+
+    printf("      \"\"");
+    for (unsigned j = 0; j < lv; j++)
+        printf("  %3d", f2->lines[j]->id_line);
+    printf("\n");
+
+    for (unsigned i = 0; i <= lu; i++) {
+        if (i == 0) printf("  \"\"");
+        else        printf("  %3d", f1->lines[i-1]->id_line);
+        for (unsigned j = 0; j <= lv; j++)
+            printf("  %3u", dist_mat[i][j]);
         printf("\n");
     }
 }
@@ -174,10 +194,12 @@ struct dfile_lines *separate_lines(struct dfile *dfile){
 
 			dfile_lines->lines[lines_index]->hash = hash(temp);
 			dfile_lines->lines[lines_index]->id_line = lines_index + 1;
+			dfile_lines->lines[lines_index]->content = temp;  // ajouter
+			dfile_lines->lines[lines_index]->len = len;        // ajouter
 
             lines_index++;
             start = i + 1;
-			free(temp);
+
         }
     }
 
@@ -191,11 +213,26 @@ struct dfile_lines *separate_lines(struct dfile *dfile){
 
 		dfile_lines->lines[lines_index]->hash = hash(temp);
 		dfile_lines->lines[lines_index]->id_line = lines_index + 1;
-
-		free(temp);
+		dfile_lines->lines[lines_index]->content = temp;  // ajouter
+		dfile_lines->lines[lines_index]->len = len;        // ajouter
     }
-
     return dfile_lines;
+}
+
+//collision check
+void fix_collisions(struct dfile_lines *f1, struct dfile_lines *f2) {
+    int counter = 1;
+    for (int i = 0; i < f1->line_count; i++) {
+        for (int j = 0; j < f2->line_count; j++) {
+            if (f1->lines[i]->hash == f2->lines[j]->hash &&
+                (f1->lines[i]->len != f2->lines[j]->len ||
+                strncmp(f1->lines[i]->content, f2->lines[j]->content, f1->lines[i]->len) != 0)) {
+                // collision : on cherche un counter dispo
+                while (counter == f1->lines[i]->hash) counter++;
+                f2->lines[j]->hash = counter++;
+            }
+        }
+    }
 }
 
 void release_file(struct dfile *dfile){
@@ -227,7 +264,7 @@ int main(int argc, char **argv) {
     }
 
     //test
-    int u[] = {'a','b','r','a','c','a','d','a','b','r','a', 0};
+    /*int u[] = {'a','b','r','a','c','a','d','a','b','r','a', 0};
 	int v[] = {'b','a','r','b','a','p','a','p','a', 0};
 
 	unsigned **dist_mat = malloc(13 * sizeof(unsigned *));
@@ -238,8 +275,36 @@ int main(int argc, char **argv) {
 	print_dist_mat(u, v, dist_mat);
     char *s = script(dist_mat, sizeof(u)/sizeof(int) - 1, sizeof(v)/sizeof(int) - 1);
 	reverte(s);
-	printf("%s\n", s);
+	printf("%s\n", s);*/
     //
+
+
+	//test
+	fix_collisions(dfile1_lines, dfile2_lines);
+
+	unsigned lu = dfile1_lines->line_count;
+	unsigned lv = dfile2_lines->line_count;
+
+	unsigned **dist_mat = malloc((lu + 1) * sizeof(unsigned *));
+	for (unsigned i = 0; i <= lu; i++)
+    dist_mat[i] = malloc((lv + 1) * sizeof(unsigned));
+
+	unsigned long *u = malloc((lu + 1) * sizeof(unsigned long));
+	for (unsigned i = 0; i < lu; i++)
+    u[i] = dfile1_lines->lines[i]->hash;
+	u[lu] = 0;
+
+	unsigned long *v = malloc((lv + 1) * sizeof(unsigned long));
+	for (unsigned i = 0; i < lv; i++)
+    v[i] = dfile2_lines->lines[i]->hash;
+	v[lv] = 0;
+
+	naive_dist(u, v, dist_mat);
+	print_dist_mat_lines(dfile1_lines, dfile2_lines, dist_mat);
+
+	char *s = script(dist_mat, lu, lv);
+	reverte(s);
+	printf("%s\n", s);
 
     release_file(dfile1);
     release_file(dfile2);

@@ -32,6 +32,9 @@ struct dfile_lines{
 struct line{
     unsigned long hash;
     int id_line;
+	//ajouter pour collision
+	const char *content;
+    int len;
     // est-ce qu'on propage le nom du fichier avec : char *file;
 };
 
