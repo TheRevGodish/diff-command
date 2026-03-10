@@ -174,6 +174,29 @@ unsigned long hash (char * line) {
 	return hash;
 }
 
+void show_user(struct dfile_lines *dfile1, struct dfile_lines *dfile2, char *script) {
+	int count_i = 0;
+	int count_d = 0;
+	int k = 0;
+	while ( script[k] != '\0') {
+		if (script[k] == 'm') {
+			printf("  %s",dfile1->lines[count_d]->content);
+			count_i++;
+			count_d++;
+		}
+		else if (script[k] == 'i') {
+			printf("+ %s",dfile2->lines[count_i]->content);
+			count_i++;
+		}
+		else if(script[k] == 'd') {
+			printf("- %s",dfile1->lines[count_d]->content);
+			count_d++;
+		}
+		k++;
+	}
+	printf("\n");
+}
+
 struct dfile_lines *separate_lines(struct dfile *dfile){
     struct dfile_lines *dfile_lines = malloc(sizeof(*dfile_lines));
     dfile_lines->line_count=counting_lines(dfile);
@@ -252,7 +275,7 @@ int main(int argc, char **argv) {
     struct dfile_lines *dfile1_lines = separate_lines(dfile1);
     struct dfile_lines *dfile2_lines = separate_lines(dfile2);
 
-    for (int i = 0; i < dfile1_lines->line_count; i++) {
+    /*for (int i = 0; i < dfile1_lines->line_count; i++) {
         printf("%d: %ld", dfile1_lines->lines[i]->id_line, dfile1_lines->lines[i]->hash);
 		printf("\n");
     }
@@ -261,7 +284,7 @@ int main(int argc, char **argv) {
     for (int j = 0; j < dfile2_lines->line_count; j++) {
         printf("%d: %ld", dfile2_lines->lines[j]->id_line, dfile2_lines->lines[j]->hash);
 		printf("\n");
-    }
+    }*/
 
     //test
     /*int u[] = {'a','b','r','a','c','a','d','a','b','r','a', 0};
@@ -300,11 +323,13 @@ int main(int argc, char **argv) {
 	v[lv] = 0;
 
 	naive_dist(u, v, dist_mat);
-	print_dist_mat_lines(dfile1_lines, dfile2_lines, dist_mat);
+	//print_dist_mat_lines(dfile1_lines, dfile2_lines, dist_mat);
 
 	char *s = script(dist_mat, lu, lv);
 	reverte(s);
-	printf("%s\n", s);
+	//printf("%s\n", s);
+
+	show_user(dfile1_lines, dfile2_lines, s);
 
     release_file(dfile1);
     release_file(dfile2);
