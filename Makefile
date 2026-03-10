@@ -59,14 +59,14 @@ build/cat: build/cat.o build/mfile.o
 build/library.o: src/library.c src/library_impl.h src/library.h src/mfile.h
 build/mfile.o: src/mfile.c src/mfile.h
 build/program.o: src/program.c src/library.h
-build/test_library.o: tests/test_library.c tests/rtest.h
-build/test_mfile.o: tests/test_mfile.c tests/rtest.h src/mfile.h 
+build/test_library.o: test test
+build/test_mfile.o: test test src/mfile.h
 build/cat.o: examples/cat.c src/mfile.h
 
 build/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-build/%.o: tests/%.c
+build/%.o: test
 	$(CC) $(CFLAGS) -c $< -o $@
 
 build/%.o: examples/%.c
