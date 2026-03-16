@@ -11,3 +11,7 @@ Algorithms {#algorithms}
 ==========
 
 The following project is mainly focus on comparing two files.
+
+- -n dynamique avec matrice (LCS)
+- -d dynamique avec une seule ligne à la volée
+- rien myers
