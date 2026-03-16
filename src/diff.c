@@ -78,16 +78,24 @@ unsigned naive_dist(const unsigned long* u, const unsigned long* v, unsigned **d
     return dist_mat[len_u][len_v];
 }
 
+void print_av(int *av, int k) {
+    printf("k=%d : ", k);
+    for (int d = -k; d <= k; d += 2) {
+        printf("av[%2d]=%d  ", d, av[d]);
+    }
+    printf("\n");
+}
+
 // mot de gauche : u
-unsigned dist_myers(const unsigned long * u, const unsigned long * v) {
+unsigned dist_myers(const int * u, const int * v) {
     // TODO: problème longueur, il ne faut pas que le hash vale 0
     unsigned len_u = 0;
     unsigned len_v = 0;
     while (u[len_u] != 0) len_u++;
     while (v[len_v] != 0) len_v++;
     int len_sum = len_u + len_v;
-    int offset = len_v;
-    int * av = malloc( (len_v + len_u + 1) * sizeof(long));
+    int offset = len_u;
+    int * av = malloc( (len_v + len_u + 1) * sizeof(int));
     // on se met au middle pour avoir les indices négatifs
     av = av + offset;
     av[0] = 0;
@@ -95,21 +103,22 @@ unsigned dist_myers(const unsigned long * u, const unsigned long * v) {
     int i, j = 0;
     for (int k = 0; k < len_sum; k++) {
         for (int d = - k; d < k + 1; d+=2) {
-            if (d > -k && av[d] < len_u && av[d] + d < len_v) {
-                i = av[d - 1];
-                if (i > av[d]) {
-                    av[d] = i;
-                }
-            }
-            if (d < k && av[d] < len_u && av[d] + d < len_v) {
-                i = av[d + 1] + 1;
-                if (i > av[d]) {
-                    av[d] = i;
+            if (d == -k) {
+                av[d] = av[d + 1];           // insertion obligatoire
+            } else if (d == k) {
+                av[d] = av[d - 1] + 1;      // suppression obligatoire
+            } else {
+                int ins = av[d + 1];
+                int del = av[d - 1] + 1;
+                if (del > ins){
+                    av[d] = del;
+                } else {
+                    av[d] = ins;
                 }
             }
             i = av[d];
-            j = av[d] + d;
-            while (u[i] == v[j] && j < len_v && i < len_u) {
+            j = i + d;
+            while (j < len_v && i < len_u && u[i] == v[j]) {
                 i++;
                 j++;
             }
@@ -120,10 +129,8 @@ unsigned dist_myers(const unsigned long * u, const unsigned long * v) {
             }
         }
     }
-
-
-
-    free(tabl - offset);
+    free(av - offset);
+    return len_sum;
 }
 
 /*void print_dist_mat(const int* u, const int* v, unsigned **dist_mat) {
@@ -339,10 +346,16 @@ int main(int argc, char **argv) {
     }
 
     //test
-    /*int u[] = {'a','b','r','a','c','a','d','a','b','r','a', 0};
-	int v[] = {'b','a','r','b','a','p','a','p','a', 0};
+    int u1[] = {'a','b','r','a','c','a','d','a','b','r','a', 0};
+	int v1[] = {'b','a','r','b','a','p','a','p','a', 0};
 
-	unsigned **dist_mat = malloc(13 * sizeof(unsigned *));
+    int v2[] = {'e','m','m','e','n','e','r', 0};
+    int u2[] = {'e','m','i','e','t','t','e','r', 0};
+
+    printf("%d\n",dist_myers(u1,v1));
+    printf("%d",dist_myers(u2,v2));
+
+	/*unsigned **dist_mat = malloc(13 * sizeof(unsigned *));
 	for (unsigned i = 0; i < 13; i++)
     dist_mat[i] = malloc(13 * sizeof(unsigned));
 
