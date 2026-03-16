@@ -41,6 +41,10 @@ static unsigned min(unsigned a, unsigned b) {
     return (a < b) ? a : b;
 }
 
+static unsigned max(unsigned a, unsigned b) {
+    return (a > b) ? a : b;
+}
+
 void reverte(char *str) {
     int n = strlen(str);
     for (int i = 0; i < n / 2; i++) {
@@ -72,6 +76,54 @@ unsigned naive_dist(const unsigned long* u, const unsigned long* v, unsigned **d
         }
     }
     return dist_mat[len_u][len_v];
+}
+
+// mot de gauche : u
+unsigned dist_myers(const unsigned long * u, const unsigned long * v) {
+    // TODO: problème longueur, il ne faut pas que le hash vale 0
+    unsigned len_u = 0;
+    unsigned len_v = 0;
+    while (u[len_u] != 0) len_u++;
+    while (v[len_v] != 0) len_v++;
+    int len_sum = len_u + len_v;
+    int offset = len_v;
+    int * av = malloc( (len_v + len_u + 1) * sizeof(long));
+    // on se met au middle pour avoir les indices négatifs
+    av = av + offset;
+    av[0] = 0;
+    // le reste à -1
+    int i, j = 0;
+    for (int k = 0; k < len_sum; k++) {
+        for (int d = - k; d < k + 1; d+=2) {
+            if (d > -k && av[d] < len_u && av[d] + d < len_v) {
+                i = av[d - 1];
+                if (i > av[d]) {
+                    av[d] = i;
+                }
+            }
+            if (d < k && av[d] < len_u && av[d] + d < len_v) {
+                i = av[d + 1] + 1;
+                if (i > av[d]) {
+                    av[d] = i;
+                }
+            }
+            i = av[d];
+            j = av[d] + d;
+            while (u[i] == v[j] && j < len_v && i < len_u) {
+                i++;
+                j++;
+            }
+            av[d] = i;
+
+            if (i >= len_u && j >= len_v) {
+                return k;
+            }
+        }
+    }
+
+
+
+    free(tabl - offset);
 }
 
 /*void print_dist_mat(const int* u, const int* v, unsigned **dist_mat) {
@@ -323,7 +375,7 @@ int main(int argc, char **argv) {
 	v[lv] = 0;
 
 	naive_dist(u, v, dist_mat);
-	//print_dist_mat_lines(dfile1_lines, dfile2_lines, dist_mat);
+	print_dist_mat_lines(dfile1_lines, dfile2_lines, dist_mat);
 
 	char *s = script(dist_mat, lu, lv);
 	reverte(s);
