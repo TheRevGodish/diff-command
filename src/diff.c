@@ -275,7 +275,7 @@ int main(int argc, char **argv) {
     struct dfile_lines *dfile1_lines = separate_lines(dfile1);
     struct dfile_lines *dfile2_lines = separate_lines(dfile2);
 
-    /*for (int i = 0; i < dfile1_lines->line_count; i++) {
+    for (int i = 0; i < dfile1_lines->line_count; i++) {
         printf("%d: %ld", dfile1_lines->lines[i]->id_line, dfile1_lines->lines[i]->hash);
 		printf("\n");
     }
@@ -284,7 +284,7 @@ int main(int argc, char **argv) {
     for (int j = 0; j < dfile2_lines->line_count; j++) {
         printf("%d: %ld", dfile2_lines->lines[j]->id_line, dfile2_lines->lines[j]->hash);
 		printf("\n");
-    }*/
+    }
 
     //test
     /*int u[] = {'a','b','r','a','c','a','d','a','b','r','a', 0};
