@@ -12,6 +12,11 @@ Algorithms {#algorithms}
 
 The following project is mainly focus on comparing two files.
 
-- -n dynamique avec matrice (LCS)
-- -d dynamique avec une seule ligne à la volée
-- rien myers
+TODO: 
+- -n: dynamique avec matrice (LCS)
+- -d: dynamique avec une seule ligne à la volée
+- rien: myers
+- tests
+- commenter en détail si néccessaire
+- séparer en plusieurs fichiers .h et .c
+- makefile et doxyfile
