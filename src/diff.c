@@ -8,6 +8,16 @@
 #include <stdio.h>
 #include <string.h>
 
+// représente l'action effectuée dans Myers à un instant donné
+struct step {
+    int k;
+    int d;
+    char op;   // 'i' ou 'd' ou 'm'
+    int prev_k;
+    int prev_d;
+    int i_before_matches;
+};
+
 // lit un fichier situé à 'path' et le transforme en un 'struct dfile'
 struct dfile *read_file(const char *path){
     int fd;
@@ -99,35 +109,44 @@ void print_av(const int *av, const int k) {
 }
 
 // renvoie la distance entre les deux hash 'u' et 'v' suivant l'algo de Myers
-unsigned dist_myers(const int * u, const int * v) {
+unsigned dist_myers(const unsigned long * u, const unsigned long * v, struct step *steps, int *step_count, int *final_d) {
     // 'u' mot de gauche
     // TODO: problème longueur, il ne faut pas que le hash vale 0
+    // TODO: avoir une fonction qui calcule la longueur et déporter ça ailleurs, puis passer les tailles en paramètre ?
     unsigned len_u = 0;
     unsigned len_v = 0;
     while (u[len_u] != 0) len_u++;
     while (v[len_v] != 0) len_v++;
 
     const int len_sum = len_u + len_v;
-    const int offset = len_u;
-    int * av = malloc( (len_v + len_u + 1) * sizeof(int));
+    const int offset = len_sum;
+    int *av_buf = malloc((2 * len_sum + 1) * sizeof(int));
+    int *av = av_buf + offset;
 
-    // on se met au middle pour avoir les indices négatifs
-    av = av + offset;
-
-    // on initialise le tableau d'avancement en couvrant bien les indices 'négatifs'
-    for (int idx = - offset; idx <= len_v; idx++) {
-        av[idx] = 0;
-    }
+    for (int idx = -offset; idx <= offset; idx++) av[idx] = 0;
 
     int j = 0;
+    int i_before = 0;
     for (int k = 0; k < len_sum; k++) {
         for (int d = - k; d < k + 1; d+=2) {
             // insertion obligatoire
             if (d == -k) {
                 av[d] = av[d + 1];
+                steps[*step_count].k = k;
+                steps[*step_count].d = d;
+                steps[*step_count].op = 'i';
+                steps[*step_count].prev_k = k - 1;
+                steps[*step_count].prev_d = d + 1;
+                (*step_count)++;
             // suppression obligatoire
             } else if (d == k) {
                 av[d] = av[d - 1] + 1;
+                steps[*step_count].k = k;
+                steps[*step_count].d = d;
+                steps[*step_count].op = 'd';
+                steps[*step_count].prev_k = k - 1;
+                steps[*step_count].prev_d = d - 1;
+                (*step_count)++;
             // cas normal, pas sur les bordures
             } else {
                 const int ins = av[d + 1];
@@ -135,34 +154,98 @@ unsigned dist_myers(const int * u, const int * v) {
                 // on compare la valeur de l'insertion et de la suppression pour savoir ce qu'on met dans 'av'
                 if (del > ins){
                     av[d] = del;
+                    steps[*step_count].k = k;
+                    steps[*step_count].d = d;
+                    steps[*step_count].op = 'd';
+                    steps[*step_count].prev_k = k - 1;
+                    steps[*step_count].prev_d = d - 1;
+                    (*step_count)++;
                 } else {
                     av[d] = ins;
+                    steps[*step_count].k = k;
+                    steps[*step_count].d = d;
+                    steps[*step_count].op = 'i';
+                    steps[*step_count].prev_k = k - 1;
+                    steps[*step_count].prev_d = d + 1;
+                    (*step_count)++;
                 }
             }
             // le tableau d'avancement représente les indices i...
             int i = av[d];
             // ...duquel on peut déduire l'indice j
             j = i - d;
+            i_before = i;
 
-            // si ça match, on avane "gratuitement"
+            // si ça match, on avance "gratuitement"
             while (j < len_v && i < len_u && u[i] == v[j]) {
                 i++;
                 j++;
             }
             av[d] = i;
+            steps[*step_count - 1].i_before_matches = i_before;
 
             // dès que 'i' et 'j' atteignent les longueurs des tableaux de hash correspondants,
             // on retourne k, le nombre d'opérations nécessaires, donc la distance
             if (i >= len_u && j >= len_v) {
-                free(av - offset);
+                *final_d = d;
+                //free(av - offset);
+                free(av_buf);
                 return k;
             }
         }
     }
 
     // dans le pire des cas, la distance entre les deux tableaux de hash est la somme des longueurs de ces derniers
-    free(av - offset);
+    //free(av - offset);
+    free(av_buf);
     return len_sum;
+}
+
+// retourne le script de l'algo Myers en remontant le 'struct steps'
+char* script_myers(const struct step *steps, int step_count,
+                   const int final_k, const int final_d, const int len_u, const int len_v) {
+    char *res = malloc((len_u + len_v + 1) * sizeof(char));
+    int pos = 0;
+
+    int cur_k = final_k;
+    int cur_d = final_d;
+    int ci = len_u;  // on part de la fin
+
+    while (cur_k > 0) {
+        // trouver le step correspondant à (cur_k, cur_d)
+        int idx = -1;
+        for (int i = step_count - 1; i >= 0; i--) {
+            if (steps[i].k == cur_k && steps[i].d == cur_d) {
+                idx = i;
+                break;
+            }
+        }
+        if (idx == -1) {
+            fprintf(stderr, "step non trouvé pour k=%d d=%d\n", cur_k, cur_d);
+            break;
+        }
+
+        // matchs : de i_before_matches jusqu'à ci
+        while (ci > steps[idx].i_before_matches) {
+            res[pos++] = 'm';
+            ci--;
+        }
+
+        // l'opération
+        res[pos++] = steps[idx].op;
+        if (steps[idx].op == 'd') ci--;
+
+        // remonter
+        cur_k = steps[idx].prev_k;
+        cur_d = steps[idx].prev_d;
+    }
+
+    // matchs restants au début
+    while (ci > 0) { res[pos++] = 'm'; ci--; }
+
+    res[pos] = '\0';
+    revert(res);
+    return res;
 }
 
 // affiche la matrice LCS
@@ -186,7 +269,7 @@ void print_dist_mat_lines(const struct dfile_lines *f1, const struct dfile_lines
 }
 
 // retourne le script de l'algo LCS en remontant 'dist_mat'
-char* script(unsigned **dist_mat, const unsigned lu, const unsigned lv){
+char* script_lcs(unsigned **dist_mat, const unsigned lu, const unsigned lv){
     char *script = malloc((lu + lv + 1) * sizeof(char));
     int i = lu;
     int j = lv;
@@ -227,7 +310,6 @@ char* script(unsigned **dist_mat, const unsigned lu, const unsigned lv){
             }
         }
     }
-
     script[pos] = '\0';
     return script;
 }
@@ -329,14 +411,16 @@ struct dfile_lines *separate_lines(struct dfile *dfile){
 // vérifie et corrige les collisions de hash
 void fix_collisions(const struct dfile_lines *f1, const struct dfile_lines *f2) {
     int counter = 1;
-    for (int i = 0; i < f1->line_count; i++) {
-        for (int j = 0; j < f2->line_count; j++) {
-            if (f1->lines[i]->hash == f2->lines[j]->hash &&
-                (f1->lines[i]->len != f2->lines[j]->len ||
-                strncmp(f1->lines[i]->content, f2->lines[j]->content, f1->lines[i]->len) != 0)) {
-                // collision : on cherche un counter dispo
-                while (counter == f1->lines[i]->hash) counter++;
-                f2->lines[j]->hash = counter++;
+    if (f1 != NULL && f2 != NULL) {
+        for (int i = 0; i < f1->line_count; i++) {
+            for (int j = 0; j < f2->line_count; j++) {
+                if (f1->lines[i]->hash == f2->lines[j]->hash &&
+                    (f1->lines[i]->len != f2->lines[j]->len ||
+                    strncmp(f1->lines[i]->content, f2->lines[j]->content, f1->lines[i]->len) != 0)) {
+                    // collision : on cherche un counter dispo
+                    while (counter == f1->lines[i]->hash) counter++;
+                    f2->lines[j]->hash = counter++;
+                    }
             }
         }
     }
@@ -360,22 +444,6 @@ int main(int argc, char **argv) {
     const struct dfile_lines *dfile2_lines = separate_lines(dfile2);
     fix_collisions(dfile1_lines, dfile2_lines);
 
-    /* affichage hash */
-    printf("hash data1 \n");
-    for (int i = 0; i < dfile1_lines->line_count; i++) {
-        printf("%d: %ld", dfile1_lines->lines[i]->id_line, dfile1_lines->lines[i]->hash);
-		printf("\n");
-    }
-    printf("\n");
-
-    printf("hash data2 \n");
-    for (int j = 0; j < dfile2_lines->line_count; j++) {
-        printf("%d: %ld", dfile2_lines->lines[j]->id_line, dfile2_lines->lines[j]->hash);
-		printf("\n");
-    }
-    printf("\n");
-    /* -------------- */
-
     const unsigned lu = dfile1_lines->line_count;
     const unsigned lv = dfile2_lines->line_count;
 
@@ -394,39 +462,46 @@ int main(int argc, char **argv) {
     v[lv] = 0;
 
     naive_dist(u, v, dist_mat);
-
-    char *s = script(dist_mat, lu, lv);
+    char *s = script_lcs(dist_mat, lu, lv);
+    printf("LCS: %s\n\n", s);
     revert(s);
     final_display_diff(dfile1_lines, dfile2_lines, s);
+    printf("\n");
 
+    struct step *steps = malloc(((lu + lv + 1) * (lu + lv + 1)) * sizeof(struct step));
+    int step_count = 0;
+    int final_d = 0;
+
+    const unsigned dist = dist_myers(u, v, steps, &step_count, &final_d);
+    char *s2 = script_myers(steps, step_count, dist, final_d, lu, lv);
+    printf("Myers: %s\n\n", s2);
+
+    final_display_diff(dfile1_lines, dfile2_lines, s2);
+
+    free(steps);
     free(u);
     free(v);
+    for (int i = 0; i <= lu; i++) free(dist_mat[i]);
     free(dist_mat);
     free(s);
+    free(s2);
     free(dfile1_lines->lines);
     free(dfile2_lines->lines);
     release_file(dfile1);
     release_file(dfile2);
 
-    // test Myers en int
-    printf("\n ---- MYERS ----\n");
-    const int u1[] = {'a','b','r','a','c','a','d','a','b','r','a', 0};
-	const int v1[] = {'b','a','r','b','a','p','a','p','a', 0};
-
-    const int v2[] = {'e','m','m','e','n','e','r', 0};
-    const int u2[] = {'e','m','i','e','t','t','e','r', 0};
-
-    printf("abracadabra -> barbapapa : %d\n",dist_myers(u1,v1));
-    printf("emmener -> emietter : %d\n",dist_myers(u2,v2));
+    /* affichage hash */
+    /*printf("hash data1 \n");
+    for (int i = 0; i < dfile1_lines->line_count; i++) {
+        printf("%d: %ld", dfile1_lines->lines[i]->id_line, dfile1_lines->lines[i]->hash);
+        printf("\n");
+    }
     printf("\n");
 
-	/*unsigned **dist_mat = malloc(13 * sizeof(unsigned *));
-	for (unsigned i = 0; i < 13; i++)
-    dist_mat[i] = malloc(13 * sizeof(unsigned));
-
-	naive_dist(u, v, dist_mat);
-	print_dist_mat(u, v, dist_mat);
-    char *s = script(dist_mat, sizeof(u)/sizeof(int) - 1, sizeof(v)/sizeof(int) - 1);
-	revert(s);
-	printf("%s\n", s);*/
+    printf("hash data2 \n");
+    for (int j = 0; j < dfile2_lines->line_count; j++) {
+        printf("%d: %ld", dfile2_lines->lines[j]->id_line, dfile2_lines->lines[j]->hash);
+        printf("\n");
+    }
+    printf("\n");*/
 }
