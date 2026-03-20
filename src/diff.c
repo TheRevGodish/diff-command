@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    unsigned long *u = str_to_ascii(argv[1]);
+    /*unsigned long *u = str_to_ascii(argv[1]);
     unsigned long *v = str_to_ascii(argv[2]);
 
     unsigned lu = strlen(argv[1]);
@@ -39,9 +39,9 @@ int main(int argc, char **argv) {
     printf("LCS: %s\n\n", s);
     revert(s);
     printf("\n");
-    display_diff_chars(argv[1], argv[2], s);
+    display_diff_chars(argv[1], argv[2], s);*/
 
-    /*struct dfile *dfile1 = read_file(argv[1]);
+    struct dfile *dfile1 = read_file(argv[1]);
     struct dfile *dfile2 = read_file(argv[2]);
 
     const struct dfile_lines *dfile1_lines = separate_lines(dfile1);
@@ -92,5 +92,5 @@ int main(int argc, char **argv) {
     free(dfile1_lines->lines);
     free(dfile2_lines->lines);
     release_file(dfile1);
-    release_file(dfile2);*/
+    release_file(dfile2);
 }
