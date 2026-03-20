@@ -1,6 +1,7 @@
 #include "utils.h"
 
 #include <string.h>
+#include <stdlib.h>
 
 unsigned min(unsigned a, unsigned b) {
     return (a < b) ? a : b;
@@ -16,4 +17,14 @@ void revert(char *str) {
             str[n - 1 - i] = tmp;
         }
     }
+}
+
+unsigned long *str_to_ascii(const char *s) {
+    const int len = strlen(s);
+    unsigned long *res = malloc((len + 1) * sizeof(unsigned long));
+    for (int i = 0; i < len; i++) {
+        res[i] = (unsigned long)(unsigned char)s[i];
+    }
+    res[len] = 0;
+    return res;
 }

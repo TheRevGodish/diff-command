@@ -3,5 +3,6 @@
 
 void revert(char *str);
 unsigned min(unsigned a, unsigned b);
+unsigned long *str_to_ascii(const char *s);
 
 #endif

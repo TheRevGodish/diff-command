@@ -5,18 +5,8 @@
 #include "matrix.h"
 #include "display.h"
 
-#include <stdlib.h>     // malloc, free
-#include <stdio.h>      // printf, fprintf
-#include <string.h>     // memcpy
-
-unsigned long *str_to_ascii(const char *s) {
-    int len = strlen(s);
-    unsigned long *res = malloc((len + 1) * sizeof(unsigned long));
-    for (int i = 0; i < len; i++)
-        res[i] = (unsigned long)(unsigned char)s[i];
-    res[len] = 0;  // sentinel pour tes fonctions qui s'arrêtent à 0
-    return res;
-}
+#include <stdlib.h>
+#include <stdio.h>
 
 int main(int argc, char **argv) {
     if (argc!=3){
