@@ -7,14 +7,51 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
 int main(int argc, char **argv) {
+    int opt;
+    int flag_n = 0;  // -n : algo matrix
+    int flag_s = 0;  // -s : strings directement
+    int flag_r = 0;  // -r : récursif sur dossiers
+
+    while ((opt = getopt(argc, argv, "nsr")) != -1) {
+        switch (opt) {
+            case 'n': flag_n = 1; break;
+            case 's': flag_s = 1; break;
+            case 'r': flag_r = 1; break;
+            default:
+                fprintf(stderr, "Usage: %s [-n|-s|-r] arg1 arg2\n", argv[0]);
+                return EXIT_FAILURE;
+        }
+    }
+
+    // après getopt, optind pointe sur le premier argument non-option
+    if (argc - optind != 2) {
+        fprintf(stderr, "Usage: %s [-n|-s|-r] arg1 arg2\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    char *arg1 = argv[optind];
+    char *arg2 = argv[optind + 1];
+
+    if (flag_n) {
+        // algo matrix
+    } else if (flag_s) {
+        // myers sur strings directement
+    } else if (flag_r) {
+        // myers récursif sur dossiers
+    } else {
+        // myers par défaut sur fichiers
+    }
+
+    /*
     if (argc!=3){
         fprintf(stderr,"wrong number of arguments\n");
         return EXIT_FAILURE;
     }
 
-    /*unsigned long *u = str_to_ascii(argv[1]);
+    unsigned long *u = str_to_ascii(argv[1]);
     unsigned long *v = str_to_ascii(argv[2]);
 
     unsigned lu = strlen(argv[1]);
@@ -65,11 +102,9 @@ int main(int argc, char **argv) {
     struct step *steps = malloc(((lu + lv + 1) * (lu + lv + 1)) * sizeof(struct step));
     int step_count = 0;
     int final_d = 0;
-
     const unsigned dist = dist_myers(u, v, steps, &step_count, &final_d);
     char *s2 = script_myers(steps, step_count, dist, final_d, lu, lv);
     printf("Myers: %s\n\n", s2);
-
     final_display_diff(dfile1_lines, dfile2_lines, s2);
 
     free(steps);
@@ -83,4 +118,6 @@ int main(int argc, char **argv) {
     free(dfile2_lines->lines);
     release_file(dfile1);
     release_file(dfile2);
+
+    return EXIT_SUCCESS;
 }
