@@ -34,3 +34,18 @@ void final_display_diff(const struct dfile_lines *dfile1,
     }
     printf("\n");
 }
+
+void display_diff_chars(const char *u, const char *v, const char *script) {
+    int i = 0, j = 0, k = 0;
+    while (script[k] != '\0') {
+        if (script[k] == 'm') {
+            printf("  %c\n", u[i++]);
+            j++;
+        } else if (script[k] == 'i') {
+            printf("+ %c\n", v[j++]);
+        } else if (script[k] == 'd') {
+            printf("- %c\n", u[i++]);
+        }
+        k++;
+    }
+}
