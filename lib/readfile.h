@@ -37,12 +37,15 @@ struct line{
 /*! \brief open the file and if everything work, it returns the structure
  * allowing to read file content.
 */
-struct dfile *read_File(const char *path);
+struct dfile *read_file(const char *path);
 
 /*! Release the ressources associate to an struct MFile, after resources
  * must not be accessed
  */
-void releaseFile(struct dfile *dfile);
+void release_file(struct dfile *dfile);
 
+int counting_lines(const struct dfile *dfile);
+
+struct dfile_lines *separate_lines(struct dfile *dfile);
 
 #endif
