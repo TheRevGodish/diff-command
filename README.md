@@ -1,22 +1,24 @@
-Template Code      {#mainpage} 
-=============
-
-This code is a template with some basics: 
-- a library with a public and a private header
-- some tests with macros
-- a Makefile with support for running tests and coverage
-- a file mfile.h/c use to access data from a file as a char *
-
 Algorithms {#algorithms}
 ==========
 
-The following project is mainly focus on comparing two files.
+The following project is focus on comparing two files or two strings,
+emulating the real _**diff**_ command.
 
-TODO: 
-- -n: dynamique avec matrice (LCS)
-- -d: dynamique avec une seule ligne à la volée
-- rien: myers
-- tests
-- commenter en détail si néccessaire
-- séparer en plusieurs fichiers .h et .c
-- makefile et doxyfile
+# **OPTIONS**:
+
+- ##### TYPE ALGO:
+  - **-n**   --> 2D matrix
+  - **rien** --> Myers
+- ##### TYPE ENTRÉE:
+  - **-s**   --> 2 strings
+  - **-r**   --> recursive on 2 directories
+  - **rien** --> 2 files
+
+
+# _TODO_:
+
+- faire toute la partie test
+- commenter en détail / doxygen
+- ajout de la partie test sur le makefile
+- clean le code et  + optimisatio
+- élaborer le readme sur le fonctionnement global

@@ -1,13 +1,15 @@
-CFLAGS	= -Wall -g -O0 -Ilib ##-Itests
+CFLAGS	= -Wall -g -O0 -Iinclude
 CC		= gcc
 VPATH	= src
-SRCS 	= diff.c readfile.c hash.c matrix.c myers.c display.c utils.c
+SRCS 	= diff.c file.c hash.c matrix.c myers.c display.c utils.c
 TARGET 	= diff
 OBJS    = $(addprefix build/, $(SRCS:.c=.o))
+TEST_SRCS = test/test_file.c
+TEST_BINS = $(TEST_SRCS:.c=)
 VALGRIND= valgrind --malloc-fill=22 --free-fill=33
 COVERAGE= NO
 
-.PHONY	= all clean run
+.PHONY	= all clean run test
 
 all: $(TARGET)
 
@@ -26,13 +28,15 @@ $(TARGET): $(OBJS)
 build/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-##build/%.o: test
-	##$(CC) $(CFLAGS) -c $< -o $@
+# règle pour compiler un test
+test/%: test/%.c build/file.o build/hash.o build/utils.o
+	$(CC) $(CFLAGS) -Ilib $^ -o $@
 
-## to enable coverage, set COVERAGE=YES
-##test: test/test_mfile test/test_library
-	##cp tests/data.txt tests/lib.txt build/
-##build/test_mfile: build/test_mfile.o build/mfile.o
-	##$(CC) $(LDFLAGS) $^ -o $@
-##build/test_library: build/test_library.o build/library.o build/mfile.o
-	##$(CC) $(LDFLAGS) $^ -o $@
+# règle pour lancer tous les tests
+test: $(TEST_BINS)
+	@for t in $(TEST_BINS); do \
+		echo "Running $$t..."; \
+		./$$t; \
+	done
+
+## TODO: cible pour le /build et le /bin
