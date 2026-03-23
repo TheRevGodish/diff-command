@@ -1,4 +1,4 @@
-#include "readfile.h"
+#include "file.h"
 #include "hash.h"
 #include "utils.h"
 #include "myers.h"
@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 
 int main(int argc, char **argv) {
     int opt;
@@ -35,89 +36,104 @@ int main(int argc, char **argv) {
     char *arg1 = argv[optind];
     char *arg2 = argv[optind + 1];
 
-    if (flag_n) {
-        // algo matrix
-    } else if (flag_s) {
-        // myers sur strings directement
+    if (flag_s) {
+        // --- Mode strings directement ---
+        unsigned long *u = str_to_ascii(arg1);
+        unsigned long *v = str_to_ascii(arg2);
+        unsigned lu = strlen(arg1);
+        unsigned lv = strlen(arg2);
+
+        unsigned **dist_mat = malloc((lu + 1) * sizeof(unsigned *));
+        for (unsigned i = 0; i <= lu; i++)
+            dist_mat[i] = malloc((lv + 1) * sizeof(unsigned));
+
+        struct step *steps = malloc(((lu + lv + 1) * (lu + lv + 1)) * sizeof(struct step));
+        int step_count = 0;
+        int final_d = 0;
+
+        char *s = NULL;
+
+        if (flag_n) {
+            naive_dist(u, v, dist_mat);
+            s = script_lcs(dist_mat, lu, lv);
+            revert(s);
+            printf("LCS: %s\n\n", s);
+            display_diff_chars(arg1, arg2, s);
+        } else {
+            const unsigned dist = dist_myers(u, v, steps, &step_count, &final_d);
+            s = script_myers(steps, step_count, dist, final_d, lu, lv);
+            printf("Myers: %s\n\n", s);
+            display_diff_chars(arg1, arg2, s);
+        }
+
+        free(s);
+        free(steps);
+        free(u);
+        free(v);
+        for (unsigned i = 0; i <= lu; i++) free(dist_mat[i]);
+        free(dist_mat);
+
     } else if (flag_r) {
-        // myers récursif sur dossiers
+        // --- Mode récursif sur dossiers ---
+        // TODO
+
     } else {
-        // myers par défaut sur fichiers
+        // --- Mode fichiers (défaut, avec ou sans -n) ---
+        struct dfile *dfile1 = read_file(arg1);
+        struct dfile *dfile2 = read_file(arg2);
+
+        const struct dfile_lines *dfile1_lines = separate_lines(dfile1);
+        const struct dfile_lines *dfile2_lines = separate_lines(dfile2);
+        fix_collisions(dfile1_lines, dfile2_lines);
+
+        const unsigned lu = dfile1_lines->line_count;
+        const unsigned lv = dfile2_lines->line_count;
+
+        unsigned **dist_mat = malloc((lu + 1) * sizeof(unsigned *));
+        for (unsigned i = 0; i <= lu; i++)
+            dist_mat[i] = malloc((lv + 1) * sizeof(unsigned));
+
+        unsigned long *u = malloc((lu + 1) * sizeof(unsigned long));
+        for (unsigned i = 0; i < lu; i++)
+            u[i] = dfile1_lines->lines[i]->hash;
+        u[lu] = 0;
+
+        unsigned long *v = malloc((lv + 1) * sizeof(unsigned long));
+        for (unsigned i = 0; i < lv; i++)
+            v[i] = dfile2_lines->lines[i]->hash;
+        v[lv] = 0;
+
+        // moins gourmand avec (lu + 1) * (lu + 1)
+        struct step *steps = malloc(((lu + lv + 1) * (lu + lv + 1)) * sizeof(struct step));
+        int step_count = 0;
+        int final_d = 0;
+
+        char *s = NULL;
+
+        if (flag_n) {
+            naive_dist(u, v, dist_mat);
+            s = script_lcs(dist_mat, lu, lv);
+            revert(s);
+            printf("LCS: %s\n\n", s);
+            final_display_diff(dfile1_lines, dfile2_lines, s);
+        } else {
+            const unsigned dist = dist_myers(u, v, steps, &step_count, &final_d);
+            s = script_myers(steps, step_count, dist, final_d, lu, lv);
+            printf("Myers: %s\n\n", s);
+            final_display_diff(dfile1_lines, dfile2_lines, s);
+        }
+
+        free(s);
+        free(steps);
+        free(u);
+        free(v);
+        for (unsigned i = 0; i <= lu; i++) free(dist_mat[i]);
+        free(dist_mat);
+        free(dfile1_lines->lines);
+        free(dfile2_lines->lines);
+        release_file(dfile1);
+        release_file(dfile2);
     }
-
-    /*
-    if (argc!=3){
-        fprintf(stderr,"wrong number of arguments\n");
-        return EXIT_FAILURE;
-    }
-
-    unsigned long *u = str_to_ascii(argv[1]);
-    unsigned long *v = str_to_ascii(argv[2]);
-
-    unsigned lu = strlen(argv[1]);
-    unsigned lv = strlen(argv[2]);
-
-    unsigned **dist_mat = malloc((lu + 1) * sizeof(unsigned *));
-    for (unsigned i = 0; i <= lu; i++)
-        dist_mat[i] = malloc((lv + 1) * sizeof(unsigned));
-
-    naive_dist(u, v, dist_mat);
-    char *s = script_lcs(dist_mat, lu, lv);
-    printf("LCS: %s\n\n", s);
-    revert(s);
-    printf("\n");
-    display_diff_chars(argv[1], argv[2], s);*/
-
-    struct dfile *dfile1 = read_file(argv[1]);
-    struct dfile *dfile2 = read_file(argv[2]);
-
-    const struct dfile_lines *dfile1_lines = separate_lines(dfile1);
-    const struct dfile_lines *dfile2_lines = separate_lines(dfile2);
-    fix_collisions(dfile1_lines, dfile2_lines);
-
-    const unsigned lu = dfile1_lines->line_count;
-    const unsigned lv = dfile2_lines->line_count;
-
-    unsigned **dist_mat = malloc((lu + 1) * sizeof(unsigned *));
-    for (unsigned i = 0; i <= lu; i++)
-        dist_mat[i] = malloc((lv + 1) * sizeof(unsigned));
-
-    unsigned long *u = malloc((lu + 1) * sizeof(unsigned long));
-    for (unsigned i = 0; i < lu; i++)
-        u[i] = dfile1_lines->lines[i]->hash;
-    u[lu] = 0;
-
-    unsigned long *v = malloc((lv + 1) * sizeof(unsigned long));
-    for (unsigned i = 0; i < lv; i++)
-        v[i] = dfile2_lines->lines[i]->hash;
-    v[lv] = 0;
-
-    naive_dist(u, v, dist_mat);
-    char *s = script_lcs(dist_mat, lu, lv);
-    printf("LCS: %s\n\n", s);
-    revert(s);
-    final_display_diff(dfile1_lines, dfile2_lines, s);
-    printf("\n");
-
-    struct step *steps = malloc(((lu + lv + 1) * (lu + lv + 1)) * sizeof(struct step));
-    int step_count = 0;
-    int final_d = 0;
-    const unsigned dist = dist_myers(u, v, steps, &step_count, &final_d);
-    char *s2 = script_myers(steps, step_count, dist, final_d, lu, lv);
-    printf("Myers: %s\n\n", s2);
-    final_display_diff(dfile1_lines, dfile2_lines, s2);
-
-    free(steps);
-    free(u);
-    free(v);
-    for (int i = 0; i <= lu; i++) free(dist_mat[i]);
-    free(dist_mat);
-    free(s);
-    free(s2);
-    free(dfile1_lines->lines);
-    free(dfile2_lines->lines);
-    release_file(dfile1);
-    release_file(dfile2);
 
     return EXIT_SUCCESS;
 }
