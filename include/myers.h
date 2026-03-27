@@ -11,7 +11,9 @@ struct step {
     int i_before_matches;
 };
 
-unsigned dist_myers(const unsigned long *u, const unsigned long *v, struct step *steps, int *step_count, int *final_d);
+unsigned dist_myers(const unsigned long *u, unsigned len_u,
+                    const unsigned long *v, unsigned len_v,
+                    struct step *steps, int *step_count, int *final_d);
 
 char *script_myers(const struct step *steps, int step_count, int final_k, int final_d, int len_u, int len_v);
 

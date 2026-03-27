@@ -5,11 +5,9 @@
 #include <stdlib.h>
 
 // renvoie la distance entre les deux hash 'u' et 'v' grâce à leur matrice 'dist_mat' correspondante
-unsigned naive_dist(const unsigned long* u, const unsigned long* v, unsigned **dist_mat) {
-    unsigned len_u = 0;
-    unsigned len_v = 0;
-    while (u[len_u] != 0) len_u++;
-    while (v[len_v] != 0) len_v++;
+unsigned naive_dist(const unsigned long *u, unsigned len_u,
+                    const unsigned long *v, unsigned len_v,
+                    unsigned **dist_mat) {
 
     // on initialise notre matrice
     if (dist_mat != NULL) {

@@ -9,8 +9,9 @@ unsigned min(unsigned a, unsigned b) {
 
 // prend un chaîne de caractère en entrée et la retourne à l'envers
 void revert(char *str) {
+    if (str == NULL) return;
     const int n = strlen(str);
-    if (str != NULL) {
+    {
         for (int i = 0; i < n / 2; i++) {
             const char tmp = str[i];
             str[i] = str[n - 1 - i];
