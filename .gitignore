@@ -2,3 +2,4 @@ diff
 *.o
 /.idea
 .idea/editor.xml
+/docs

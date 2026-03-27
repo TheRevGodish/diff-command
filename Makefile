@@ -9,7 +9,7 @@ TEST_BINS = $(TEST_SRCS:.c=)
 VALGRIND= valgrind --malloc-fill=22 --free-fill=33
 COVERAGE= NO
 
-.PHONY	= all clean run test
+.PHONY	= all clean run doc test
 
 all: $(TARGET)
 
@@ -30,7 +30,7 @@ build/%.o: %.c
 
 # règle pour compiler un test
 test/%: test/%.c build/file.o build/hash.o build/utils.o
-	$(CC) $(CFLAGS) -Ilib $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@
 
 # règle pour lancer tous les tests
 test: $(TEST_BINS)
