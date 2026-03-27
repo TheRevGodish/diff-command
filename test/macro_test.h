@@ -12,7 +12,7 @@
     fputs(__func__,stderr);			\
     fputs("\n\n",stderr);				\
     exit(EXIT_FAILURE); }			\
-  else fputs("      \033[32mOK\033[0m : "#a" != "#b"\n",stderr);
+  else fputs("      \033[32mOK\033[0m : "#a" == "#b"\n",stderr);
 
 #define CMP_STR_EQ(a,b) if (strcmp(a,b)!=0){  \
     fputs("      \033[31merror : "#a" == "#b" in ",stderr); \
@@ -26,6 +26,6 @@
     fputs(__func__,stderr);		      \
     fputs("\n\n",stderr);			      \
     exit(EXIT_FAILURE); }		      \
-  else fputs("      \033[32mOK\033[0m : "#a" == "#b"\n",stderr);
+  else fputs("      \033[32mOK\033[0m : "#a" != "#b"\n",stderr);
 
 #endif
