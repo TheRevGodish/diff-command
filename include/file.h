@@ -21,7 +21,7 @@ struct dfile_lines{
 struct line{
     unsigned long hash;    /**< Hash djb2 du contenu de la ligne */
     int id_line;           /**< Numéro de la ligne (commence à 1) */
-	const char *content;   /**< Le contenu de la ligne (incluant '\n' si présent)*/
+	const char *content;   /**< Le contenu de la ligne (incluant `\n` si présent)*/
     int len;               /**< Longueur du contenu en octets */
 };
 /**
