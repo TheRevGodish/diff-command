@@ -6,14 +6,9 @@
 #include <stdio.h>
 
 // renvoie la distance entre les deux hash 'u' et 'v' suivant l'algo de Myers
-unsigned dist_myers(const unsigned long * u, const unsigned long * v, struct step *steps, int *step_count, int *final_d) {
-    // 'u' mot de gauche
-    // TODO: problème longueur, il ne faut pas que le hash vale 0
-    // TODO: avoir une fonction qui calcule la longueur et déporter ça ailleurs, puis passer les tailles en paramètre ?
-    unsigned len_u = 0;
-    unsigned len_v = 0;
-    while (u[len_u] != 0) len_u++;
-    while (v[len_v] != 0) len_v++;
+unsigned dist_myers(const unsigned long *u, unsigned len_u,
+                    const unsigned long *v, unsigned len_v,
+                    struct step *steps, int *step_count, int *final_d) {
 
     const int len_sum = len_u + len_v;
     const int offset = len_sum;

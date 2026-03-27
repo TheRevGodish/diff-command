@@ -54,13 +54,13 @@ int main(int argc, char **argv) {
         char *s = NULL;
 
         if (flag_n) {
-            naive_dist(u, v, dist_mat);
+            naive_dist(u, lu, v, lv, dist_mat);
             s = script_lcs(dist_mat, lu, lv);
             revert(s);
             printf("LCS: %s\n\n", s);
             display_diff_chars(arg1, arg2, s);
         } else {
-            const unsigned dist = dist_myers(u, v, steps, &step_count, &final_d);
+            const unsigned dist = dist_myers(u, lu, v, lv, steps, &step_count, &final_d);
             s = script_myers(steps, step_count, dist, final_d, lu, lv);
             printf("Myers: %s\n\n", s);
             display_diff_chars(arg1, arg2, s);
@@ -93,15 +93,13 @@ int main(int argc, char **argv) {
         for (unsigned i = 0; i <= lu; i++)
             dist_mat[i] = malloc((lv + 1) * sizeof(unsigned));
 
-        unsigned long *u = malloc((lu + 1) * sizeof(unsigned long));
+        unsigned long *u = malloc(lu * sizeof(unsigned long));
         for (unsigned i = 0; i < lu; i++)
             u[i] = dfile1_lines->lines[i]->hash;
-        u[lu] = 0;
 
-        unsigned long *v = malloc((lv + 1) * sizeof(unsigned long));
+        unsigned long *v = malloc(lv * sizeof(unsigned long));
         for (unsigned i = 0; i < lv; i++)
             v[i] = dfile2_lines->lines[i]->hash;
-        v[lv] = 0;
 
         // moins gourmand avec (lu + 1) * (lu + 1)
         struct step *steps = malloc(((lu + lv + 1) * (lu + lv + 1)) * sizeof(struct step));
@@ -111,13 +109,13 @@ int main(int argc, char **argv) {
         char *s = NULL;
 
         if (flag_n) {
-            naive_dist(u, v, dist_mat);
+            naive_dist(u, lu, v, lv, dist_mat);
             s = script_lcs(dist_mat, lu, lv);
             revert(s);
             printf("LCS: %s\n\n", s);
             final_display_diff(dfile1_lines, dfile2_lines, s);
         } else {
-            const unsigned dist = dist_myers(u, v, steps, &step_count, &final_d);
+            const unsigned dist = dist_myers(u, lu, v, lv, steps, &step_count, &final_d);
             s = script_myers(steps, step_count, dist, final_d, lu, lv);
             printf("Myers: %s\n\n", s);
             final_display_diff(dfile1_lines, dfile2_lines, s);
