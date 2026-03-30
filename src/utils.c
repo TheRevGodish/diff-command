@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 unsigned min(unsigned a, unsigned b) {
     return (a < b) ? a : b;
