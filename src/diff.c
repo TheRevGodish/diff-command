@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <dirent.h>
 
 int main(int argc, char **argv) {
     int opt;
@@ -75,7 +76,47 @@ int main(int argc, char **argv) {
 
     } else if (flag_r) {
         // --- Mode récursif sur dossiers ---
-        // TODO
+        printf("------------------------------------\n");
+        printf("arg1: %d, arg2: %d\n", is_directory(arg1), is_directory(arg2));
+        printf("------------------------------------\n");
+        if (is_directory(arg1) == 0 || is_directory(arg2) == 0) {
+            fprintf(stderr, "Usage: %s -r: arg1 arg2 must be directory\n", argv[0]);
+            return EXIT_FAILURE;
+        }
+
+        struct dirent *dir1;
+        DIR *d = opendir(arg1);
+        if (d) {
+            while ((dir1 = readdir(d)) != NULL) {
+                // l1 = mesurer le taille du dossier
+            }
+            // malloc d'un tableau d'unsigned long
+            // int idx = 0
+            while ((dir1 = readdir(d)) != NULL) {
+                // tableau1[idx] = hash(dir1->d_name)
+                // idx++
+            }
+        }
+        struct dirent *dir2;
+        DIR *d = opendir(arg1);
+        if (d) {
+            while ((dir2 = readdir(d)) != NULL) {
+                // l2 = mesurer le taille du dossier
+            }
+            // malloc d'un tableau d'unsigned long
+            // int idx = 0
+            while ((dir2 = readdir(d)) != NULL) {
+                // tableau2[idx] = hash(dir2->d_name)
+                // idx++
+            }
+        }
+        // dist_myers(tableau1, l1, tableau2, l2, steps, &step_count, &final d)
+        // s = script_myers(steps, step_count, dist, final_d, l1, l2);
+        // while (s != '\0') {
+        //      if (s[idx] = 'd') {
+        //
+        //      }
+        // }
 
     } else {
         // --- Mode fichiers (défaut, avec ou sans -n) ---
