@@ -90,13 +90,15 @@ int main(int argc, char **argv) {
         if (d1) {
             while ((dir1 = readdir(d1)) != NULL) {
                 // l1 = mesurer la taille du dossier
+                // l1++
             }
             closedir(d1);
             d1 = opendir(arg1);
             // malloc d'un tableau d'unsigned long
+            // char **tableau1 = malloc(l1 * sizeof(char *))
             // int idx = 0
             while ((dir1 = readdir(d1)) != NULL) {
-                // tableau1[idx] = hash(dir1->d_name)
+                // tableau1[idx] = dir1->d_name
                 // idx++
             }
             closedir(d1);
@@ -107,13 +109,15 @@ int main(int argc, char **argv) {
         if (d2) {
             while ((dir2 = readdir(d2)) != NULL) {
                 // l2 = mesurer la taille du dossier
+                // l2++
             }
             closedir(d2);
             d2 = opendir(arg2);
             // malloc d'un tableau d'unsigned long
+            // char **tableau2 = malloc(l2 * sizeof(char *))
             // int idx = 0
             while ((dir2 = readdir(d2)) != NULL) {
-                // tableau2[idx] = hash(dir2->d_name)
+                // tableau2[idx] = dir2->d_name
                 // idx++
             }
             closedir(d2);
@@ -125,6 +129,14 @@ int main(int argc, char **argv) {
         //
         //      }
         // }
+
+        // pour chaque nom dans tableau1 :
+        //      chercher ce nom dans tableau2 avec strcmp
+        //      si trouvé : diff_fichiers(arg1/nom, arg2/nom)
+        //      sinon : afficher "seulement dans arg1: nom"
+        // pour chaque nom dans tableau2 :
+        //      chercher ce nom dans tableau1 avec strcmp
+        //      si non trouvé : afficher "seulement dans arg2: nom"
 
     } else {
         // --- Mode fichiers (défaut, avec ou sans -n) ---
