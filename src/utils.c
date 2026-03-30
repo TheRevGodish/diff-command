@@ -29,3 +29,10 @@ unsigned long *str_to_ascii(const char *s) {
     res[len] = 0;
     return res;
 }
+
+int is_directory(const char *path) {
+    struct stat st;
+    if (stat(path, &st) != 0)
+        return 0;
+    return S_ISDIR(st.st_mode);
+}

@@ -28,4 +28,6 @@ unsigned min(unsigned a, unsigned b);
  */
 unsigned long *str_to_ascii(const char *s);
 
+int is_directory(const char *path);
+
 #endif
