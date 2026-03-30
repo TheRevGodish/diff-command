@@ -85,30 +85,38 @@ int main(int argc, char **argv) {
         }
 
         struct dirent *dir1;
-        DIR *d = opendir(arg1);
-        if (d) {
-            while ((dir1 = readdir(d)) != NULL) {
-                // l1 = mesurer le taille du dossier
+        int l1 = 0;
+        DIR *d1 = opendir(arg1);
+        if (d1) {
+            while ((dir1 = readdir(d1)) != NULL) {
+                // l1 = mesurer la taille du dossier
             }
+            closedir(d1);
+            d1 = opendir(arg1);
             // malloc d'un tableau d'unsigned long
             // int idx = 0
-            while ((dir1 = readdir(d)) != NULL) {
+            while ((dir1 = readdir(d1)) != NULL) {
                 // tableau1[idx] = hash(dir1->d_name)
                 // idx++
             }
+            closedir(d1);
         }
         struct dirent *dir2;
-        DIR *d = opendir(arg1);
-        if (d) {
-            while ((dir2 = readdir(d)) != NULL) {
-                // l2 = mesurer le taille du dossier
+        int l2 = 0;
+        DIR *d2 = opendir(arg2);
+        if (d2) {
+            while ((dir2 = readdir(d2)) != NULL) {
+                // l2 = mesurer la taille du dossier
             }
+            closedir(d2);
+            d2 = opendir(arg2);
             // malloc d'un tableau d'unsigned long
             // int idx = 0
-            while ((dir2 = readdir(d)) != NULL) {
+            while ((dir2 = readdir(d2)) != NULL) {
                 // tableau2[idx] = hash(dir2->d_name)
                 // idx++
             }
+            closedir(d2);
         }
         // dist_myers(tableau1, l1, tableau2, l2, steps, &step_count, &final d)
         // s = script_myers(steps, step_count, dist, final_d, l1, l2);
