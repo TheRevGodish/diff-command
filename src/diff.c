@@ -86,39 +86,39 @@ int main(int argc, char **argv) {
 
         struct dirent *dir1;
         int l1 = 0;
+		char **tableau1 = NULL;
         DIR *d1 = opendir(arg1);
         if (d1) {
             while ((dir1 = readdir(d1)) != NULL) {
-                // l1 = mesurer la taille du dossier
-                // l1++
+                if (strcmp(dir1->d_name, ".") == 0 || strcmp(dir1->d_name, "..") == 0) continue;
+                l1++;
             }
             closedir(d1);
             d1 = opendir(arg1);
-            // malloc d'un tableau d'unsigned long
-            // char **tableau1 = malloc(l1 * sizeof(char *))
-            // int idx = 0
+            tableau1 = malloc(l1 * sizeof(char *));
+            int idx = 0;
             while ((dir1 = readdir(d1)) != NULL) {
-                // tableau1[idx] = dir1->d_name
-                // idx++
+				if (strcmp(dir1->d_name, ".") == 0 || strcmp(dir1->d_name, "..") == 0) continue;
+                tableau1[idx++] = strdup(dir1->d_name);
             }
             closedir(d1);
         }
         struct dirent *dir2;
         int l2 = 0;
+		char **tableau2 = NULL;
         DIR *d2 = opendir(arg2);
         if (d2) {
-            while ((dir2 = readdir(d2)) != NULL) {
-                // l2 = mesurer la taille du dossier
-                // l2++
-            }
+			while ((dir2 = readdir(d2)) != NULL) {
+				if (strcmp(dir2->d_name, ".") == 0 || strcmp(dir2->d_name, "..") == 0) continue;
+        		l2++;
+        	}
             closedir(d2);
             d2 = opendir(arg2);
-            // malloc d'un tableau d'unsigned long
-            // char **tableau2 = malloc(l2 * sizeof(char *))
-            // int idx = 0
+            tableau2 = malloc(l2 * sizeof(char *));
+            int idx = 0;
             while ((dir2 = readdir(d2)) != NULL) {
-                // tableau2[idx] = dir2->d_name
-                // idx++
+				if (strcmp(dir2->d_name, ".") == 0 || strcmp(dir2->d_name, "..") == 0) continue;
+                tableau2[idx++] = strdup(dir2->d_name);
             }
             closedir(d2);
         }
