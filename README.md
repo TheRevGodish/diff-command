@@ -1,4 +1,4 @@
-Algorithms {#algorithms}
+Algorithms
 ==========
 
 The following project is focus on comparing two files, two directories or two strings,
