@@ -1,7 +1,7 @@
 Algorithms {#algorithms}
 ==========
 
-The following project is focus on comparing two files or two strings,
+The following project is focus on comparing two files, two directories or two strings,
 emulating the real _**diff**_ command.
 
 # **OPTIONS**:
